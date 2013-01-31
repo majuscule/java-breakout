@@ -15,6 +15,8 @@ import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import java.util.Random;
+
 public class Breakout extends GraphicsProgram {
 
 	/** Width and height of application window in pixels */
@@ -57,13 +59,31 @@ public class Breakout extends GraphicsProgram {
 	/** Number of turns */
 	private static final int NTURNS = 3;
 
+    private static double vx, vy;
+
 	/* Method: run() */
 	/** Runs the Breakout program. */
 	public void run() {
         createBoard();
         createPaddle();
-        createBall();
+        GOval ball = createBall();
+        Random randomNumberGenerator = new Random(System.currentTimeMillis() / 1000L);
+        vx = randomNumberGenerator.nextInt() % 10;
+        vy = 3;
         while (true) {
+            ball.move(vx, vy);
+            GRectangle bounds = ball.getBounds();
+            double x = bounds.getX();
+            double y = bounds.getY();
+            System.out.println(x);
+            if (getElementAt(x, y) != null
+                || getElementAt(x+BRICK_WIDTH, y) != null
+                || getElementAt(x, y+BRICK_HEIGHT) != null
+                || getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT) != null)
+                System.out.println("hit object");
+            if (x == 0 || y == 0)
+                System.out.println("hit wall");
+
             pause(50);
         }
     }
@@ -113,12 +133,13 @@ public class Breakout extends GraphicsProgram {
         add(rectangle);
     }
 
-    private void createBall() {
+    private GOval createBall() {
         GOval ball = new GOval(getWidth()/2 - BALL_RADIUS/2,
                                 BRICK_Y_OFFSET + (BRICK_HEIGHT + BRICK_SEP)*NBRICK_ROWS + BALL_RADIUS*5,
                                 BALL_RADIUS, BALL_RADIUS);
         ball.setFilled(true);
         ball.setColor(Color.white);
         add(ball);
+        return ball;
     }
 }
