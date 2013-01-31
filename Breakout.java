@@ -64,16 +64,33 @@ public class Breakout extends GraphicsProgram {
 
         int canvasWidth = getWidth();
         int canvasHeight = getHeight();
-        int leftOverSpace = canvasWidth - (NBRICKS_PER_ROW * BRICK_WIDTH);
-        int marginTop = 10;
+        int leftOverSpace = canvasWidth - (NBRICKS_PER_ROW * (BRICK_WIDTH + BRICK_SEP)) + 2;
 
         for (int i = NBRICKS_PER_ROW; i > 0; i--) {
             for (int ii = 0; ii < NBRICK_ROWS; ii++) {
-                GRect rectangle = new GRect(leftOverSpace/2+BRICK_WIDTH*ii,
-                                            marginTop + BRICK_HEIGHT*i+BRICK_SEP*i-1,
+                GRect rectangle = new GRect(leftOverSpace/2 + BRICK_WIDTH*ii + BRICK_SEP*ii,
+                                            BRICK_Y_OFFSET + BRICK_HEIGHT*i + BRICK_SEP*i - 1,
                                             BRICK_WIDTH,
                                             BRICK_HEIGHT);
-                rectangle.setColor(Color.green);
+                rectangle.setFilled(true);
+                switch (i) {
+                    case 1:
+                    case 2:
+                        rectangle.setColor(Color.red); break;
+                    case 3:
+                    case 4:
+                        rectangle.setColor(Color.orange); break;
+                    case 5:
+                    case 6:
+                        rectangle.setColor(Color.yellow); break;
+                    case 7:
+                    case 8:
+                        rectangle.setColor(Color.green); break;
+                    case 9:
+                    case 10:
+                        rectangle.setColor(Color.blue); break;
+                }
+
                 add(rectangle);
             }
         }
