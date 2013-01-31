@@ -60,11 +60,14 @@ public class Breakout extends GraphicsProgram {
 	/* Method: run() */
 	/** Runs the Breakout program. */
 	public void run() {
+        createBoard();
+        createPaddle();
+    }
+
+    private void createBoard() {
         setBackground(Color.black);
 
-        int canvasWidth = getWidth();
-        int canvasHeight = getHeight();
-        int leftOverSpace = canvasWidth - (NBRICKS_PER_ROW * (BRICK_WIDTH + BRICK_SEP)) + 2;
+        int leftOverSpace = getWidth() - (NBRICKS_PER_ROW * (BRICK_WIDTH + BRICK_SEP)) + 2;
 
         for (int i = NBRICKS_PER_ROW; i > 0; i--) {
             for (int ii = 0; ii < NBRICK_ROWS; ii++) {
@@ -94,5 +97,15 @@ public class Breakout extends GraphicsProgram {
                 add(rectangle);
             }
         }
+    }
+
+    private void createPaddle() {
+        GRect rectangle = new GRect(getWidth()/2 - PADDLE_WIDTH/2,
+                                    getHeight() - PADDLE_Y_OFFSET,
+                                    PADDLE_WIDTH,
+                                    PADDLE_HEIGHT);
+        rectangle.setFilled(true);
+        rectangle.setColor(Color.white);
+        add(rectangle);
     }
 }
