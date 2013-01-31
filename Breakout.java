@@ -62,6 +62,10 @@ public class Breakout extends GraphicsProgram {
 	public void run() {
         createBoard();
         createPaddle();
+        createBall();
+        while (true) {
+            pause(50);
+        }
     }
 
     private void createBoard() {
@@ -107,5 +111,14 @@ public class Breakout extends GraphicsProgram {
         rectangle.setFilled(true);
         rectangle.setColor(Color.white);
         add(rectangle);
+    }
+
+    private void createBall() {
+        GOval ball = new GOval(getWidth()/2 - BALL_RADIUS/2,
+                                BRICK_Y_OFFSET + (BRICK_HEIGHT + BRICK_SEP)*NBRICK_ROWS + BALL_RADIUS*5,
+                                BALL_RADIUS, BALL_RADIUS);
+        ball.setFilled(true);
+        ball.setColor(Color.white);
+        add(ball);
     }
 }
