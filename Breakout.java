@@ -81,10 +81,14 @@ public class Breakout extends GraphicsProgram {
                 || getElementAt(x, y+BRICK_HEIGHT) != null
                 || getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT) != null)
                 System.out.println("hit object");
-            if (x == 0 || y == 0)
-                System.out.println("hit wall");
+            if (x < 1)
+                vx = -vx;
+            else if (y < 1)
+                vy = -vy;
+            else if (y == 0)
+                System.out.println("GAME OVER");
 
-            pause(50);
+            pause(30);
         }
     }
 
