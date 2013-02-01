@@ -116,7 +116,9 @@ public class Breakout extends GraphicsProgram {
         if (collision == paddle) {
             vy = -vy;
             // be a little random
-            vx += (int)(Math.random() * ((5 - -5) + 1));
+            if (paddleControl != 0) vx += (int)(Math.random() * ((5 - -5) + 1));
+            // don't be dull
+            if (vy < BALL_SPEED*2) vy -= (int)(Math.random() * ((5 - 0) + 1));
         } else if (collision != null) {
             remove(collision);
             if (--bricksLeft == 0) {
