@@ -61,9 +61,17 @@ public class Breakout extends GraphicsProgram {
 
     private static double vx, vy;
 
+    private static final int BALL_SPEED = 1;
+
     private static GRect paddle;
 
+    private static final int PADDLE_SPEED = 6;
+
     private static int paddleControl = 0;
+
+    private static final double GRAVITY = .4;
+
+    private static boolean ROUND_STARTED = false;
 
 	/* Method: run() */
 	/** Runs the Breakout program. */
@@ -72,21 +80,31 @@ public class Breakout extends GraphicsProgram {
         createBoard();
         paddle = createPaddle();
         GOval ball = createBall();
-        Random randomNumberGenerator = new Random(System.currentTimeMillis() / 1000L);
-        vx = randomNumberGenerator.nextInt() % 5;
-        vy = 6;
+        vx = (int)(Math.random() * ((20 - 2) + 1));
+        vy = BALL_SPEED;
+        GLabel startMsg = new GLabel("PRESS SPACE TO PLAY");
+        startMsg.setColor(Color.white);
+        startMsg.setLocation(getWidth()/2 - 63,
+                            NBRICK_ROWS*(BRICK_WIDTH + BRICK_SEP));
+        add(startMsg);
         while (true) {
-            tick(ball, paddle);
-            pause(30);
+            // WTF. Somehow this System.out call is flushing ROUND_STARTED from keyPressed
+            System.out.println();
+            if (ROUND_STARTED) {
+                remove(startMsg);
+                tick(ball, paddle);
+                pause(30);
+            }
         }
     }
 
     private void tick(GOval ball, GRect paddle) {
         ball.move(vx, vy);
+        vy += GRAVITY;
         if (paddleControl == 1 && paddle.getX() + PADDLE_WIDTH < getWidth())
-            paddle.move(5, 0);
+            paddle.move(PADDLE_SPEED, 0);
         if (paddleControl == -1 && paddle.getX() > 0)
-            paddle.move(-5, 0);
+            paddle.move(-PADDLE_SPEED, 0);
         GRectangle bounds = ball.getBounds();
         double x = bounds.getX();
         double y = bounds.getY();
@@ -94,17 +112,23 @@ public class Breakout extends GraphicsProgram {
         if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y);
         if (collision == null) collision = getElementAt(x, y+BRICK_HEIGHT);
         if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT);
-        if (collision == paddle) vy = -vy;
-        else if (collision != null) {
-            remove(collision);
+        if (collision == paddle) {
             vy = -vy;
+        } else if (collision != null) {
+            remove(collision);
+            vy = -vy-GRAVITY;
         }
         if (x < 0 || x+BALL_RADIUS > getWidth())
             vx = -vx;
         else if (y < 0)
             vy = -vy;
-//            else if (y > getHeight())
-//                System.out.println("GAME OVER");
+        else if (y > getHeight()) {
+            ball.setLocation(getWidth()/2 - BALL_RADIUS, 
+                    BRICK_Y_OFFSET + (BRICK_HEIGHT + BRICK_SEP)*NBRICK_ROWS + BALL_RADIUS*5);
+            vy = BALL_SPEED;
+            vx = -vx;
+            ROUND_STARTED = false;
+        }
     }
 
     private void createBoard() {
@@ -155,7 +179,7 @@ public class Breakout extends GraphicsProgram {
 
     private GOval createBall() {
         GOval ball = new GOval(getWidth()/2 - BALL_RADIUS/2,
-                                BRICK_Y_OFFSET + (BRICK_HEIGHT + BRICK_SEP)*NBRICK_ROWS + BALL_RADIUS*5,
+                                BRICK_Y_OFFSET + (BRICK_HEIGHT + BRICK_SEP) * NBRICK_ROWS + BALL_RADIUS*2,
                                 BALL_RADIUS, BALL_RADIUS);
         ball.setFilled(true);
         ball.setColor(Color.white);
@@ -163,15 +187,13 @@ public class Breakout extends GraphicsProgram {
         return ball;
     }
 
-    private double ease(double x, double t, double b, double c, double d) {
-        return (t == d) ? b+c : c * (-Math.pow(2, -12 * t/d) + 1) + b;
-    }
-
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-                paddleControl = 1;
+            paddleControl = 1;
         else if (e.getKeyCode() == KeyEvent.VK_LEFT)
-                paddleControl = -1;
+            paddleControl = -1;
+        else if (e.getKeyCode() == KeyEvent.VK_SPACE)
+            ROUND_STARTED = true;
     }
 
     public void keyReleased(KeyEvent e) {
