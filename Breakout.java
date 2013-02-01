@@ -73,15 +73,16 @@ public class Breakout extends GraphicsProgram {
 
     private static boolean ROUND_STARTED = false;
 
+    private static int bricksLeft = NBRICKS_PER_ROW * NBRICK_ROWS;
+
 	/* Method: run() */
 	/** Runs the Breakout program. */
 	public void run() {
         addKeyListeners();
         createBoard();
-        int bricksLeft = NBRICKS_PER_ROW * NBRICK_ROWS;
         paddle = createPaddle();
         GOval ball = createBall();
-        vx = (int)(Math.random() * ((20 - 2) + 1));
+        vx = (Math.random() < .5 ? -1 : 1)*(int)(Math.random() * ((10 - 1) + 1));
         vy = BALL_SPEED;
         GLabel startMsg = new GLabel("PRESS SPACE TO PLAY");
         startMsg.setColor(Color.white);
@@ -93,15 +94,16 @@ public class Breakout extends GraphicsProgram {
             System.out.println();
             if (ROUND_STARTED) {
                 remove(startMsg);
-                tick(ball, paddle, bricksLeft);
+                tick(ball, paddle);
                 pause(30);
             }
         }
     }
 
-    private void tick(GOval ball, GRect paddle, int bricksLeft) {
+    private void tick(GOval ball, GRect paddle) {
         ball.move(vx, vy);
-        vy += GRAVITY;
+        // don't be crazy
+        if (BALL_SPEED < BALL_SPEED*3) vy += GRAVITY;
         if (paddleControl == 1 && paddle.getX() + PADDLE_WIDTH < getWidth())
             paddle.move(PADDLE_SPEED, 0);
         if (paddleControl == -1 && paddle.getX() > 0)
@@ -110,18 +112,27 @@ public class Breakout extends GraphicsProgram {
         double x = bounds.getX();
         double y = bounds.getY();
         GObject collision = getElementAt(x, y);
-        if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y);
-        if (collision == null) collision = getElementAt(x, y+BRICK_HEIGHT);
-        if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT);
+        if (collision == null) collision = getElementAt(x+BALL_RADIUS*2, y);
+        if (collision == null) collision = getElementAt(x, y+BALL_RADIUS*2);
+        if (collision == null) collision = getElementAt(x+BALL_RADIUS*2, y+BALL_RADIUS*2);
+        if (collision == null) collision = getElementAt(x+BALL_RADIUS*2, y+BALL_RADIUS*2);
+        if (collision == null) collision = getElementAt(x+BALL_RADIUS, y+BALL_RADIUS);
         if (collision == paddle) {
             vy = -vy;
             // be a little random
-            if (paddleControl != 0) vx += (int)(Math.random() * ((5 - -5) + 1));
-            // don't be dull
-            if (vy < BALL_SPEED*2) vy -= (int)(Math.random() * ((5 - 0) + 1));
+            if (paddleControl != 0) {
+                vx += (Math.random() < .5 ? -1 : 1) * (int)(Math.random() * ((5 - 0) + 1));
+                if (vy < BALL_SPEED*2)
+                    vy -= (int)(Math.random() * ((4 - 0) + 1));
+            } else {
+                if (vy < BALL_SPEED*2)
+                    vy += (int)(Math.random() * ((1 - 0) + 1));
+            }
         } else if (collision != null) {
             remove(collision);
-            if (--bricksLeft == 0) {
+            bricksLeft--;
+            System.out.println(bricksLeft);
+            if (bricksLeft == 0) {
                 GLabel winMsg = new GLabel("YOU WIN!!");
                 winMsg.setColor(Color.green);
                 winMsg.setLocation(getWidth()/2 - 25,
@@ -139,7 +150,7 @@ public class Breakout extends GraphicsProgram {
             ball.setLocation(getWidth()/2 - BALL_RADIUS, 
                     BRICK_Y_OFFSET + (BRICK_HEIGHT + BRICK_SEP)*NBRICK_ROWS + BALL_RADIUS*5);
             vy = BALL_SPEED + (int)(Math.random() * ((5 - 0) + 1));
-            vx = (int)(Math.random() * ((20 - 2) + 1));
+            vx = (Math.random() < .5 ? -1 : 1)*(int)(Math.random() * ((10 - 1) + 1));
             ROUND_STARTED = false;
         }
     }
