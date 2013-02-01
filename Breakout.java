@@ -61,31 +61,43 @@ public class Breakout extends GraphicsProgram {
 
     private static double vx, vy;
 
+    private static GRect paddle;
+
+    private static int paddleControl = 0;
+
 	/* Method: run() */
 	/** Runs the Breakout program. */
 	public void run() {
+        addKeyListeners();
         createBoard();
-        createPaddle();
+        paddle = createPaddle();
         GOval ball = createBall();
         Random randomNumberGenerator = new Random(System.currentTimeMillis() / 1000L);
-        vx = randomNumberGenerator.nextInt() % 10;
+        vx = randomNumberGenerator.nextInt() % 5;
         vy = 3;
         while (true) {
             ball.move(vx, vy);
+            if (paddleControl == 1 && paddle.getX() + PADDLE_WIDTH < getWidth())
+                paddle.move(5, 0);
+            if (paddleControl == -1 && paddle.getX() > 0)
+                paddle.move(-5, 0);
             GRectangle bounds = ball.getBounds();
             double x = bounds.getX();
             double y = bounds.getY();
-            System.out.println(x);
-            if (getElementAt(x, y) != null
-                || getElementAt(x+BRICK_WIDTH, y) != null
-                || getElementAt(x, y+BRICK_HEIGHT) != null
-                || getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT) != null)
-                System.out.println("hit object");
-            if (x < 1)
-                vx = -vx;
-            else if (y < 1)
+            GObject collision = getElementAt(x, y);
+            if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y);
+            if (collision == null) collision = getElementAt(x, y+BRICK_HEIGHT);
+            if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT);
+            if (collision == paddle) vy = -vy;
+            else if (collision != null) {
+                remove(collision);
                 vy = -vy;
-            else if (y == 0)
+            }
+            if (x < 0 || x+BALL_RADIUS > getWidth())
+                vx = -vx;
+            else if (y < 0)
+                vy = -vy;
+            else if (y > getHeight())
                 System.out.println("GAME OVER");
 
             pause(30);
@@ -127,14 +139,15 @@ public class Breakout extends GraphicsProgram {
         }
     }
 
-    private void createPaddle() {
-        GRect rectangle = new GRect(getWidth()/2 - PADDLE_WIDTH/2,
+    private GRect createPaddle() {
+        GRect paddle = new GRect(getWidth()/2 - PADDLE_WIDTH/2,
                                     getHeight() - PADDLE_Y_OFFSET,
                                     PADDLE_WIDTH,
                                     PADDLE_HEIGHT);
-        rectangle.setFilled(true);
-        rectangle.setColor(Color.white);
-        add(rectangle);
+        paddle.setFilled(true);
+        paddle.setColor(Color.white);
+        add(paddle);
+        return paddle;
     }
 
     private GOval createBall() {
@@ -145,5 +158,16 @@ public class Breakout extends GraphicsProgram {
         ball.setColor(Color.white);
         add(ball);
         return ball;
+    }
+
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+                paddleControl = 1;
+        else if (e.getKeyCode() == KeyEvent.VK_LEFT)
+                paddleControl = -1;
+    }
+
+    public void keyReleased(KeyEvent e) {
+        paddleControl = 0;
     }
 }
