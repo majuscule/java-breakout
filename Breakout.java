@@ -65,7 +65,7 @@ public class Breakout extends GraphicsProgram {
 
     private static GRect paddle;
 
-    private static final int PADDLE_SPEED = 6;
+    private static final int PADDLE_SPEED = 15;
 
     private static int paddleControl = 0;
 
@@ -78,6 +78,7 @@ public class Breakout extends GraphicsProgram {
 	public void run() {
         addKeyListeners();
         createBoard();
+        int bricksLeft = NBRICKS_PER_ROW * NBRICK_ROWS;
         paddle = createPaddle();
         GOval ball = createBall();
         vx = (int)(Math.random() * ((20 - 2) + 1));
@@ -92,13 +93,13 @@ public class Breakout extends GraphicsProgram {
             System.out.println();
             if (ROUND_STARTED) {
                 remove(startMsg);
-                tick(ball, paddle);
+                tick(ball, paddle, bricksLeft);
                 pause(30);
             }
         }
     }
 
-    private void tick(GOval ball, GRect paddle) {
+    private void tick(GOval ball, GRect paddle, int bricksLeft) {
         ball.move(vx, vy);
         vy += GRAVITY;
         if (paddleControl == 1 && paddle.getX() + PADDLE_WIDTH < getWidth())
@@ -118,6 +119,14 @@ public class Breakout extends GraphicsProgram {
             vx += (int)(Math.random() * ((5 - -5) + 1));
         } else if (collision != null) {
             remove(collision);
+            if (--bricksLeft == 0) {
+                GLabel winMsg = new GLabel("YOU WIN!!");
+                winMsg.setColor(Color.green);
+                winMsg.setLocation(getWidth()/2 - 25,
+                                    NBRICK_ROWS*(BRICK_WIDTH + BRICK_SEP));
+                add(winMsg);
+                remove(ball);
+            }
             vy = -vy-GRAVITY;
         }
         if (x < 0 || x+BALL_RADIUS > getWidth())
@@ -127,8 +136,8 @@ public class Breakout extends GraphicsProgram {
         else if (y > getHeight()) {
             ball.setLocation(getWidth()/2 - BALL_RADIUS, 
                     BRICK_Y_OFFSET + (BRICK_HEIGHT + BRICK_SEP)*NBRICK_ROWS + BALL_RADIUS*5);
-            vy = BALL_SPEED;
-            vx = -vx;
+            vy = BALL_SPEED + (int)(Math.random() * ((5 - 0) + 1));
+            vx = (int)(Math.random() * ((20 - 2) + 1));
             ROUND_STARTED = false;
         }
     }
