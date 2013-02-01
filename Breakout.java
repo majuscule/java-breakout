@@ -114,6 +114,8 @@ public class Breakout extends GraphicsProgram {
         if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT);
         if (collision == paddle) {
             vy = -vy;
+            // be a little random
+            vx += (int)(Math.random() * ((5 - -5) + 1));
         } else if (collision != null) {
             remove(collision);
             vy = -vy-GRAVITY;
