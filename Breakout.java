@@ -74,34 +74,37 @@ public class Breakout extends GraphicsProgram {
         GOval ball = createBall();
         Random randomNumberGenerator = new Random(System.currentTimeMillis() / 1000L);
         vx = randomNumberGenerator.nextInt() % 5;
-        vy = 3;
+        vy = 6;
         while (true) {
-            ball.move(vx, vy);
-            if (paddleControl == 1 && paddle.getX() + PADDLE_WIDTH < getWidth())
-                paddle.move(5, 0);
-            if (paddleControl == -1 && paddle.getX() > 0)
-                paddle.move(-5, 0);
-            GRectangle bounds = ball.getBounds();
-            double x = bounds.getX();
-            double y = bounds.getY();
-            GObject collision = getElementAt(x, y);
-            if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y);
-            if (collision == null) collision = getElementAt(x, y+BRICK_HEIGHT);
-            if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT);
-            if (collision == paddle) vy = -vy;
-            else if (collision != null) {
-                remove(collision);
-                vy = -vy;
-            }
-            if (x < 0 || x+BALL_RADIUS > getWidth())
-                vx = -vx;
-            else if (y < 0)
-                vy = -vy;
-            else if (y > getHeight())
-                System.out.println("GAME OVER");
-
+            tick(ball, paddle);
             pause(30);
         }
+    }
+
+    private void tick(GOval ball, GRect paddle) {
+        ball.move(vx, vy);
+        if (paddleControl == 1 && paddle.getX() + PADDLE_WIDTH < getWidth())
+            paddle.move(5, 0);
+        if (paddleControl == -1 && paddle.getX() > 0)
+            paddle.move(-5, 0);
+        GRectangle bounds = ball.getBounds();
+        double x = bounds.getX();
+        double y = bounds.getY();
+        GObject collision = getElementAt(x, y);
+        if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y);
+        if (collision == null) collision = getElementAt(x, y+BRICK_HEIGHT);
+        if (collision == null) collision = getElementAt(x+BRICK_WIDTH, y+BRICK_HEIGHT);
+        if (collision == paddle) vy = -vy;
+        else if (collision != null) {
+            remove(collision);
+            vy = -vy;
+        }
+        if (x < 0 || x+BALL_RADIUS > getWidth())
+            vx = -vx;
+        else if (y < 0)
+            vy = -vy;
+//            else if (y > getHeight())
+//                System.out.println("GAME OVER");
     }
 
     private void createBoard() {
@@ -160,6 +163,10 @@ public class Breakout extends GraphicsProgram {
         return ball;
     }
 
+    private double ease(double x, double t, double b, double c, double d) {
+        return (t == d) ? b+c : c * (-Math.pow(2, -12 * t/d) + 1) + b;
+    }
+
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_RIGHT)
                 paddleControl = 1;
@@ -170,4 +177,5 @@ public class Breakout extends GraphicsProgram {
     public void keyReleased(KeyEvent e) {
         paddleControl = 0;
     }
+
 }
